@@ -70,11 +70,11 @@ def write_output(train, test, fn, distance, point_type='float', count=100):
     f.close()
 
 
-def train_test_split(X, test_size=10000):
+def train_test_split(*X, test_size=10000):
     import sklearn.model_selection
-    print('Splitting %d*%d into train/test' % X.shape)
+    print('Splitting %d*%d into train/test' % X[0].shape)
     return sklearn.model_selection.train_test_split(
-        X, test_size=test_size, random_state=1)
+        *X, test_size=test_size, random_state=1)
 
 
 def glove(out_fn, d):
@@ -348,6 +348,18 @@ def random_jaccard(out_fn, n=10000, size=50, universe=80):
     write_output(X_train, X_test, out_fn, 'jaccard', 'bit')
 
 
+def vgg(out_fn, n_samples=None):
+    import sklearn.datasets
+
+    from ann_benchmarks.npload import load_input
+
+    path = "/mnt/Data/Meerkat/VGG/descriptors_v2/"
+
+    X, Y  = load_input(path, n_samples)
+
+    X_train, X_test, Y_train, Y_test = train_test_split(X,Y, test_size=10000)
+    write_output(X_train, X_test, out_fn, 'euclidean')
+
 
 def lastfm(out_fn, n_dimensions, test_size=50000):
     # This tests out ANN methods for retrieval on simple matrix factorization
@@ -430,4 +442,5 @@ DATASETS = {
     'sift-256-hamming': lambda out_fn: sift_hamming(
         out_fn, 'sift.hamming.256'),
     'kosarak-jaccard': lambda out_fn: kosarak(out_fn),
+    'vgg-512-euclidean': lambda out_fn: vgg(out_fn),
 }
