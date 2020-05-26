@@ -353,7 +353,7 @@ def vgg(out_fn, n_samples=None):
 
     from ann_benchmarks.npload import load_input
 
-    path = "/mnt/Data/Meerkat/VGG/descriptors_v2/"
+    path = "/mnt/datasets/descriptors_v3/"
 
     X, Y  = load_input(path, n_samples)
 
