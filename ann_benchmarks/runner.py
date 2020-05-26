@@ -256,7 +256,7 @@ def run_docker(definition, dataset, count, runs, timeout, batch, cpu_limit,
             return
         elif exit_code is not None:
             print(colors.color(container.logs().decode(), fg='red'))
-            raise Exception('Child process raised exception %d' % exit_code)
+            raise Exception('Child process raised exception {}'.format(exit_code))
 
     finally:
         container.remove(force=True)
