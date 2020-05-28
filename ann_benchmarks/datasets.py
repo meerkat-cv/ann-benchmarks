@@ -26,8 +26,11 @@ def get_dataset_fn(dataset):
 def get_dataset(which):
     hdf5_fn = get_dataset_fn(which)
     try:
-        url = 'http://ann-benchmarks.com/%s.hdf5' % which
-        download(url, hdf5_fn)
+        if not os.path.exists(hdf5_fn):
+            url = 'http://ann-benchmarks.com/%s.hdf5' % which
+            download(url, hdf5_fn)
+        else :
+            print("Using existing file from %s" % hdf5_fn)
     except:
         print("Cannot download %s" % url)
         if which in DATASETS:
@@ -348,7 +351,7 @@ def random_jaccard(out_fn, n=10000, size=50, universe=80):
     write_output(X_train, X_test, out_fn, 'jaccard', 'bit')
 
 
-def vgg(out_fn, n_samples=None):
+def vgg(out_fn, n_samples=None, test_size=10000):
     import sklearn.datasets
 
     from ann_benchmarks.npload import load_input
@@ -357,8 +360,8 @@ def vgg(out_fn, n_samples=None):
 
     X, Y  = load_input(path, n_samples)
 
-    X_train, X_test, Y_train, Y_test = train_test_split(X,Y, test_size=10000)
     write_output(X_train, X_test, out_fn, 'euclidean')
+    X_train, X_test, Y_train, Y_test = train_test_split(X,Y, test_size=test_size)
 
 
 def lastfm(out_fn, n_dimensions, test_size=50000):
@@ -418,6 +421,8 @@ DATASETS = {
                                                     'euclidean'),
     'random-s-100-euclidean': lambda out_fn: random_float(out_fn, 100, 100000, 1000,
                                                     'euclidean'),
+    'random-test-euclidean': lambda out_fn: random_float(out_fn, 100, 1000, 10,
+                                                    'euclidean'),
     'random-xs-20-angular': lambda out_fn: random_float(out_fn, 20, 10000, 100,
                                                   'angular'),
     'random-s-100-angular': lambda out_fn: random_float(out_fn, 100, 100000, 1000,
@@ -443,4 +448,5 @@ DATASETS = {
         out_fn, 'sift.hamming.256'),
     'kosarak-jaccard': lambda out_fn: kosarak(out_fn),
     'vgg-512-euclidean': lambda out_fn: vgg(out_fn),
+    'vgg-512-euclidean-sample': lambda out_fn: vgg(out_fn, n_samples=1000 , test_size=100),
 }
