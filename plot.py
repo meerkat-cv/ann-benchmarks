@@ -112,7 +112,7 @@ if __name__ == "__main__":
 
     dataset = get_dataset(args.dataset)
     count = int(args.count)
-    unique_algorithms = get_unique_algorithms()
+    unique_algorithms = get_unique_algorithms(args.dataset)
     results = load_all_results(args.dataset, count, True, args.batch)
     linestyles = create_linestyles(sorted(unique_algorithms))
     runs = compute_metrics(np.array(dataset["distances"]),
