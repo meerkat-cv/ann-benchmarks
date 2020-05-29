@@ -56,6 +56,39 @@ def epsilon(dataset_distances, run_distances, count, metrics, epsilon=0.01):
     return metrics[s]
 
 
+def get_rank_values( query_labels, run_labels ):
+    rank = []
+    for q, neighbors in zip(query_labels, run_labels):
+    #    print(q,neighbors)
+        pos_arr = np.where(neighbors == q)#[0][0]#. #.index(q)
+        if len(pos_arr[0]) == 0:
+            r = float('inf')
+        else:
+            r = pos_arr[0][0]
+
+        rank.append(r)
+    return np.asarray(rank)
+
+
+def accuracy(query_labels, run_labels, metrics, rank_n=1):
+    " Accuracy if the label is within the first rank-n neighbors "
+
+    s = 'rank' + str(rank_n)
+    if s not in metrics:
+        print('Computing rank metrics')
+        rank_metrics = metrics.create_group(s)
+        rank_values = get_rank_values(query_labels, run_labels)
+
+        filtered_rank = np.where(rank_values < rank_n)
+        accuracy = len(filtered_rank[0])/len(rank_values)
+        rank_metrics.attrs['value'] = accuracy
+        #rank_metrics['accuracy'] = accuracy
+
+    else:
+        print("Found cached result")
+    return metrics[s]
+
+
 def rel(dataset_distances, run_distances, metrics):
     if 'rel' not in metrics.attrs:
         print('Computing rel metrics')
@@ -104,7 +137,7 @@ def dist_computations(queries, attrs):
 all_metrics = {
     "k-nn": {
         "description": "Recall",
-        "function": lambda true_distances, run_distances, metrics, run_attrs: knn(true_distances, run_distances, run_attrs["count"], metrics).attrs['mean'],  # noqa
+        "function": lambda true_distances, run_distances, metrics, run_attrs, *args: knn(true_distances, run_distances, run_attrs["count"], metrics).attrs['mean'],  # noqa
         "worst": float("-inf"),
         "lim": [0.0, 1.03]
     },
@@ -116,6 +149,11 @@ all_metrics = {
     "largeepsilon": {
         "description": "Epsilon 0.1 Recall",
         "function": lambda true_distances, run_distances, metrics, run_attrs: epsilon(true_distances, run_distances, run_attrs["count"], metrics, 0.1).attrs['mean'],  # noqa
+        "worst": float("-inf")
+    },
+    "accuracy": {
+        "description": "Accuracy",
+        "function": lambda _ , __ , metrics, ___ , query_labels, run_labels: accuracy(query_labels, run_labels, metrics, 1).attrs['value'],  # noqa
         "worst": float("-inf")
     },
     "rel": {

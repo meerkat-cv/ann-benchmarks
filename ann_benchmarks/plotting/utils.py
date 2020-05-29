@@ -37,26 +37,42 @@ def create_pointset(data, xn, yn):
     return xs, ys, ls, axs, ays, als
 
 
-def compute_metrics(true_nn_distances, res, metric_1, metric_2,
+def compute_run_labels(run_neighbors,train_labels):
+    run_labels = numpy.empty_like(run_neighbors, dtype='<U7')
+    (Q,N) = run_labels.shape
+    for q in range(0,Q):
+        for n in range(0,N) :
+            run_labels[q][n] = train_labels[run_neighbors[q][n]]
+
+    return run_labels
+
+
+def compute_metrics( dataset, res, metric_1, metric_2,
                     recompute=False):
     all_results = {}
+
+    true_nn_distances = numpy.array(dataset["distances"])
+    query_labels= numpy.array([ n.decode() for n in dataset['test_lbl']])
+
     for i, (properties, run) in enumerate(res):
         algo = properties['algo']
         algo_name = properties['name']
         # cache distances to avoid access to hdf5 file
         run_distances = numpy.array(run['distances'])
+        run_labels = compute_run_labels(run['neighbors'],dataset['train_lbl'])
+
         if recompute and 'metrics' in run:
             del run['metrics']
         metrics_cache = get_or_create_metrics(run)
 
         metric_1_value = metrics[metric_1]['function'](
             true_nn_distances,
-            run_distances, metrics_cache, properties)
+            run_distances, metrics_cache, properties, query_labels, run_labels )
         metric_2_value = metrics[metric_2]['function'](
             true_nn_distances,
             run_distances, metrics_cache, properties)
 
-        print('%3d: %80s %12.3f %12.3f' %
+        print('%3d: %80s %12.3f %12.10f' %
               (i, algo_name, metric_1_value, metric_2_value))
 
         all_results.setdefault(algo, []).append(
