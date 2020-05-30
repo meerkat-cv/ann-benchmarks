@@ -50,6 +50,7 @@ float:
           args: [[400, 1024, 4096, 8192, 16384],
                  [1, 10, 40, 100, 200]]
     hnswlib:
+      disabled: true
       docker-tag: ann-benchmarks-hnswlib
       module: ann_benchmarks.algorithms.hnswlib
       constructor: HnswLib
@@ -137,6 +138,7 @@ float:
 
 
     flann:
+     disabled: true
      docker-tag: ann-benchmarks-flann
      module: ann_benchmarks.algorithms.flann
      constructor: FLANN
@@ -145,6 +147,7 @@ float:
        flann:
          args: [[0.2, 0.5, 0.7, 0.8, 0.9, 0.95, 0.97]]
     annoy:
+      disabled: false
       docker-tag: ann-benchmarks-annoy
       module: ann_benchmarks.algorithms.annoy
       constructor: Annoy
@@ -169,6 +172,7 @@ float:
         extra:
           args: [16, [5, 10, 15, 20, 25, 30, 40]]
     n2:
+      disabled: true
       docker-tag: ann-benchmarks-n2
       module: ann_benchmarks.algorithms.n2
       constructor: N2
