@@ -43,7 +43,7 @@ def get_dataset(which):
 # Everything below this line is related to creating datasets
 # You probably never need to do this at home,
 # just rely on the prepared datasets at http://ann-benchmarks.com
-def write_output(train, test, train_lbl, test_lbl, fn, distance, point_type='float', count=100):
+def write_output(train, test, fn, distance, train_lbl=None, test_lbl=None, point_type='float', count=100):
     """
     Count number of nearest neighbors to compute for the ground-truth
     """
@@ -56,8 +56,12 @@ def write_output(train, test, train_lbl, test_lbl, fn, distance, point_type='flo
     print('test size:  %9d * %4d' % test.shape)
     f.create_dataset('train', (len(train), len(train[0])), dtype=train.dtype)[:] = train
     f.create_dataset('test', (len(test), len(test[0])), dtype=test.dtype)[:] = test
-    f.create_dataset('train_lbl', (len(train_lbl), ), dtype='S7')[:] = [n.encode("ascii", "ignore") for n in train_lbl ]
-    f.create_dataset('test_lbl', (len(test_lbl), ), dtype='S7')[:] = [n.encode("ascii", "ignore") for n in test_lbl ]
+
+    if train_lbl is not None:
+        f.create_dataset('train_lbl', (len(train_lbl), ), dtype='S7')[:] = [n.encode("ascii", "ignore") for n in train_lbl ]
+
+    if test_lbl is not None:
+        f.create_dataset('test_lbl', (len(test_lbl), ), dtype='S7')[:] = [n.encode("ascii", "ignore") for n in test_lbl ]
 
     neighbors = f.create_dataset('neighbors', (len(test), count), dtype='i')
     distances = f.create_dataset('distances', (len(test), count), dtype='f')
@@ -356,7 +360,7 @@ def random_jaccard(out_fn, n=10000, size=50, universe=80):
     write_output(X_train, X_test, out_fn, 'jaccard', 'bit')
 
 
-def vgg(out_fn, n_samples=None, test_size=10000):
+def vgg(out_fn, n_samples=None, test_size=10000, labels=True):
     import sklearn.datasets
 
     from ann_benchmarks.npload import load_input
@@ -366,7 +370,10 @@ def vgg(out_fn, n_samples=None, test_size=10000):
     X, Y  = load_input(path, n_samples)
 
     X_train, X_test, Y_train, Y_test = train_test_split(X,Y, test_size=test_size)
-    write_output(X_train, X_test, Y_train, Y_test, out_fn, 'euclidean')
+    if labels :
+        write_output(X_train, X_test, out_fn, 'euclidean', Y_train, Y_test)
+    else:
+        write_output(X_train, X_test, out_fn, 'euclidean')
 
 
 def lastfm(out_fn, n_dimensions, test_size=50000):
@@ -453,6 +460,6 @@ DATASETS = {
         out_fn, 'sift.hamming.256'),
     'kosarak-jaccard': lambda out_fn: kosarak(out_fn),
     'vgg-512-euclidean': lambda out_fn: vgg(out_fn),
-    'vgg-512-euclidean-sample': lambda out_fn: vgg(out_fn, n_samples=1000 , test_size=100),
+    'vgg-512-euclidean-sample': lambda out_fn: vgg(out_fn, n_samples=1000 , test_size=100, labels=False),
     'vgg-512-euclidean-rank': lambda out_fn: vgg(out_fn, n_samples=1000 , test_size=100),
 }
