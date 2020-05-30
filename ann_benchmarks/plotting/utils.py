@@ -52,6 +52,7 @@ def compute_metrics( dataset, res, metric_1, metric_2,
     all_results = {}
 
     true_nn_distances = numpy.array(dataset["distances"])
+    train_labels= numpy.array(dataset["train_lbl"])
     query_labels= numpy.array([ n.decode() for n in dataset['test_lbl']])
 
     for i, (properties, run) in enumerate(res):
@@ -59,8 +60,9 @@ def compute_metrics( dataset, res, metric_1, metric_2,
         algo_name = properties['name']
         # cache distances to avoid access to hdf5 file
         run_distances = numpy.array(run['distances'])
-        run_labels = compute_run_labels(run['neighbors'],dataset['train_lbl'])
+        run_neighbors = numpy.array(run['neighbors'])
 
+        run_labels = compute_run_labels(run_neighbors,train_labels)
         if recompute and 'metrics' in run:
             del run['metrics']
         metrics_cache = get_or_create_metrics(run)
