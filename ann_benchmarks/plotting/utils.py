@@ -83,21 +83,30 @@ def compute_metrics( dataset, res, metric_1, metric_2,
     return all_results
 
 
-def compute_all_metrics(true_nn_distances, run, properties, recompute=False):
+def compute_all_metrics(dataset, run, properties, recompute=False):
     algo = properties["algo"]
     algo_name = properties["name"]
     print('--')
     print(algo_name)
     results = {}
+
     # cache distances to avoid access to hdf5 file
+    true_nn_distances = numpy.array(dataset["distances"])
+    train_labels= numpy.array(dataset["train_lbl"])
+    query_labels= numpy.array([ n.decode() for n in dataset['test_lbl']])
+
     run_distances = numpy.array(run["distances"])
+    run_neighbors = numpy.array(run['neighbors'])
+
+    run_labels = compute_run_labels(run_neighbors,train_labels)
+
     if recompute and 'metrics' in run:
         del run['metrics']
     metrics_cache = get_or_create_metrics(run)
 
     for name, metric in metrics.items():
         v = metric["function"](
-            true_nn_distances, run_distances, metrics_cache, properties)
+            true_nn_distances, run_distances, metrics_cache, properties, query_labels, run_labels)
         results[name] = v
         if v:
             print('%s: %g' % (name, v))

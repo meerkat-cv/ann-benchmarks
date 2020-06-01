@@ -225,15 +225,15 @@ def load_all_results():
     all_runs_by_algorithm = {'batch': {}, 'non-batch': {}}
     cached_true_dist = []
     old_sdn = None
-    for properties, f in results.load_all_results():
+    for properties, f in results.load_all_results(dataset='vgg-512-euclidean'):
         sdn = get_run_desc(properties)
         if sdn != old_sdn:
             dataset = get_dataset(properties["dataset"])
-            cached_true_dist = list(dataset["distances"])
+            #cached_true_dist = list(dataset["distances"])
             old_sdn = sdn
         algo = properties["algo"]
         ms = compute_all_metrics(
-            cached_true_dist, f, properties, args.recompute)
+            dataset, f, properties, args.recompute)
         algo_ds = get_dataset_label(sdn)
         idx = "non-batch"
         if properties["batch_mode"]:

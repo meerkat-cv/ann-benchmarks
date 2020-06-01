@@ -143,57 +143,57 @@ all_metrics = {
     },
     "epsilon": {
         "description": "Epsilon 0.01 Recall",
-        "function": lambda true_distances, run_distances, metrics, run_attrs: epsilon(true_distances, run_distances, run_attrs["count"], metrics).attrs['mean'],  # noqa
+        "function": lambda true_distances, run_distances, metrics, run_attrs, *args: epsilon(true_distances, run_distances, run_attrs["count"], metrics).attrs['mean'],  # noqa
         "worst": float("-inf")
     },
     "largeepsilon": {
         "description": "Epsilon 0.1 Recall",
-        "function": lambda true_distances, run_distances, metrics, run_attrs: epsilon(true_distances, run_distances, run_attrs["count"], metrics, 0.1).attrs['mean'],  # noqa
+        "function": lambda true_distances, run_distances, metrics, run_attrs, *args: epsilon(true_distances, run_distances, run_attrs["count"], metrics, 0.1).attrs['mean'],  # noqa
         "worst": float("-inf")
     },
     "accuracy": {
         "description": "Accuracy",
-        "function": lambda _ , __ , metrics, ___ , query_labels, run_labels: accuracy(query_labels, run_labels, metrics, 1).attrs['value'],  # noqa
+        "function": lambda _ , __ , metrics, ___ , query_labels, run_labels, *args: accuracy(query_labels, run_labels, metrics, 1).attrs['value'],  # noqa
         "worst": float("-inf")
     },
     "rel": {
         "description": "Relative Error",
-        "function": lambda true_distances, run_distances, metrics, run_attrs: rel(true_distances, run_distances, metrics),  # noqa
+        "function": lambda true_distances, run_distances, metrics, run_attrs, *args: rel(true_distances, run_distances, metrics),  # noqa
         "worst": float("inf")
     },
     "qps": {
         "description": "Queries per second (1/s)",
-        "function": lambda true_distances, run_distances, metrics, run_attrs: queries_per_second(true_distances, run_attrs),  # noqa
+        "function": lambda true_distances, run_distances, metrics, run_attrs, *args: queries_per_second(true_distances, run_attrs),  # noqa
         "worst": float("-inf")
     },
     "queryTime": {
         "description": "Best query search time (s)",
-        "function": lambda true_distances, run_distances, metrics, run_attrs: search_seconds(true_distances, run_attrs),  # noqa
+        "function": lambda true_distances, run_distances, metrics, run_attrs, *args: search_seconds(true_distances, run_attrs),  # noqa
         "worst": float("inf")
     },
     "distcomps": {
         "description": "Distance computations",
-        "function": lambda true_distances, run_distances,  metrics, run_attrs: dist_computations(true_distances, run_attrs), # noqa
+        "function": lambda true_distances, run_distances,  metrics, run_attrs, *args: dist_computations(true_distances, run_attrs), # noqa
         "worst": float("inf")
     },
     "build": {
         "description": "Build time (s)",
-        "function": lambda true_distances, run_distances, metrics, run_attrs: build_time(true_distances, run_attrs), # noqa
+        "function": lambda true_distances, run_distances, metrics, run_attrs, *args: build_time(true_distances, run_attrs), # noqa
         "worst": float("inf")
     },
     "candidates": {
         "description": "Candidates generated",
-        "function": lambda true_distances, run_distances, metrics, run_attrs: candidates(true_distances, run_attrs), # noqa
+        "function": lambda true_distances, run_distances, metrics, run_attrs, *args: candidates(true_distances, run_attrs), # noqa
         "worst": float("inf")
     },
     "indexsize": {
         "description": "Index size (kB)",
-        "function": lambda true_distances, run_distances, metrics, run_attrs: index_size(true_distances, run_attrs),  # noqa
+        "function": lambda true_distances, run_distances, metrics, run_attrs, *args: index_size(true_distances, run_attrs),  # noqa
         "worst": float("inf")
     },
     "queriessize": {
         "description": "Index size (kB)/Queries per second (s)",
-        "function": lambda true_distances, run_distances, metrics, run_attrs: index_size(true_distances, run_attrs) / queries_per_second(true_distances, run_attrs), # noqa
+        "function": lambda true_distances, run_distances, metrics, run_attrs, *args: index_size(true_distances, run_attrs) / queries_per_second(true_distances, run_attrs), # noqa
         "worst": float("inf")
     }
 }
