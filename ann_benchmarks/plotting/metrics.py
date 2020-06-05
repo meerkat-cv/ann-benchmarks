@@ -152,7 +152,7 @@ all_metrics = {
 #        "worst": float("-inf")
 #    },
     "accuracy": {
-        "description": "Accuracy",
+        "description": "Accuracy-@1",
         "function": lambda _ , __ , metrics, ___ , query_labels, run_labels, *args: accuracy(query_labels, run_labels, metrics, 1).attrs['value'],  # noqa
         "worst": float("-inf")
     },
@@ -175,7 +175,7 @@ all_metrics = {
 #        "description": "Distance computations",
 #        "function": lambda true_distances, run_distances,  metrics, run_attrs, *args: dist_computations(true_distances, run_attrs), # noqa
 #        "worst": float("inf")
-    },
+#    },
     "build": {
         "description": "Build time (s)",
         "function": lambda true_distances, run_distances, metrics, run_attrs, *args: build_time(true_distances, run_attrs), # noqa
