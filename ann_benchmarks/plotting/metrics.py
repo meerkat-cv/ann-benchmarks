@@ -69,20 +69,29 @@ def get_rank_values( query_labels, run_labels ):
         rank.append(r)
     return np.asarray(rank)
 
+def get_accuracy_rank(rank_values, rank_n = 1):
+    filtered_rank = np.where(rank_values < rank_n)
+    accuracy = len(filtered_rank[0])/len(rank_values)
+    return accuracy
 
-def accuracy(query_labels, run_labels, metrics, rank_n=1):
-    " Accuracy if the label is within the first rank-n neighbors "
+def accuracy(query_labels, run_labels, metrics):
+    """
+    Accuracy if the label is within the first rank-n neighbors
+    - count is the K for knn computed.
+    """
 
-    s = 'rank' + str(rank_n)
+    s = 'accuracy'
     if s not in metrics:
         print('Computing rank metrics')
         rank_metrics = metrics.create_group(s)
         rank_values = get_rank_values(query_labels, run_labels)
 
-        filtered_rank = np.where(rank_values < rank_n)
-        accuracy = len(filtered_rank[0])/len(rank_values)
-        rank_metrics.attrs['value'] = accuracy
-        #rank_metrics['accuracy'] = accuracy
+        R1 = get_accuracy_rank(rank_values, 1)
+        R10 = get_accuracy_rank(rank_values, 10)
+
+        rank_metrics.attrs['R@1'] = R1
+        rank_metrics.attrs['R@10'] = R10
+        rank_metrics['ranks'] = rank_values
 
     else:
         print("Found cached result")
@@ -151,9 +160,14 @@ all_metrics = {
 #        "function": lambda true_distances, run_distances, metrics, run_attrs, *args: epsilon(true_distances, run_distances, run_attrs["count"], metrics, 0.1).attrs['mean'],  # noqa
 #        "worst": float("-inf")
 #    },
-    "accuracy": {
-        "description": "Accuracy-@1",
-        "function": lambda _ , __ , metrics, ___ , query_labels, run_labels, *args: accuracy(query_labels, run_labels, metrics, 1).attrs['value'],  # noqa
+    "accuracy-R@1": {
+        "description": "Accuracy-R@1",
+        "function": lambda _ , __ , metrics, run_attrs , query_labels, run_labels, *args: accuracy(query_labels, run_labels, metrics).attrs['R@1'],  # noqa
+        "worst": float("-inf")
+    },
+    "accuracy-R@10": {
+        "description": "Accuracy-R@10",
+        "function": lambda _ , __ , metrics, run_attrs , query_labels, run_labels, *args: accuracy(query_labels, run_labels, metrics).attrs['R@10'],  # noqa
         "worst": float("-inf")
     },
 #    "rel": {
