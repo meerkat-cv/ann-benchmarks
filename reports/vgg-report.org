@@ -14,15 +14,12 @@
 Dataset from face images : https://www.robots.ox.ac.uk/~vgg/data/vgg_face2/
 Face descriptors (feature vectors) were extracted with frapi's method ( arcFace )
 
-#+begin_src python :results output table :exports results
+#+begin_src python :results output table :exports results :eval never
 import numpy as np
 import h5py
 
-filename = "../data/vgg-512-euclidean-rank.hdf5"
+filename = "../data/vgg-512-euclidean.hdf5"
 dataset = h5py.File(filename, "r")
-
-#for v in dataset.items():
-#    print(v)
 
 train = set(dataset['train_lbl'])
 test = set(dataset['test_lbl'])
@@ -30,7 +27,7 @@ diff = (test - train)
 
 print("Vectors type:", dataset['train'].dtype)
 print("Train Vectors:", dataset['train'].shape)
-print("Test Vectors:", dataset['train'].shape)
+print("Test Vectors:", dataset['test'].shape)
 
 print("Train Labels:", len(train))
 print("Test Labels:", len(test))
@@ -41,17 +38,17 @@ print("Untrained Labels: ", len(diff))
 
 #+RESULTS:
 : Vectors type: float64
-: Train Vectors: (900, 512)
-: Test Vectors: (900, 512)
-: Train Labels: 20
-: Test Labels: 20
+: Train Vectors: (2701775, 512)
+: Test Vectors: (10000, 512)
+: Train Labels: 8631
+: Test Labels: 5748
 : Untrained Labels:  0
 
-* Evaluation methodolgy 
+* Evaluation methodology 
 
 For each algorithm configuration ( algorithm + parameters ):
 - we build the indexing datastructure one time.
-- Each /RUN/ queries the full dataset. We perform tho test /runs/.
+- we perform two test /runs/. In each /run/ the full train dataset is queried over the computed index.
 - each query is executed individually ( no batch queries ).
 
 Resource limits:
