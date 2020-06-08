@@ -20,7 +20,7 @@ def export_to_csv(all_data, fn_out):
     #    json.dump(all_data, fp,  indent=2)
     
     csvfile = open(fn_out, 'w', newline='')
-    writer = csv.writer(csvfile, delimiter=';', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+    writer = csv.writer(csvfile, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
 
     csv_header = None
     results = all_data['non-batch']
