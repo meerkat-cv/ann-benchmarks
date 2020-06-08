@@ -83,7 +83,7 @@ Each individual query time is saved in case we need them for extra analysis.
 
 The output of the knn-query is a list of neighbors-id in the /Train/ dataset.
 
-/Note:/ all the queries were executed on a *10-Nearest-Neighbors* index, so the response we always be a list of 10 candidates ordered by distance ( from smallest to largest ) 
+/Note:/ all the queries were executed on a *10-Nearest-Neighbors* index, so the response will always be a list of 10 candidates ordered by distance ( from smallest to largest ) 
 
 From the list of candidates ids we generate a list candidate labels and compute the first position where the query label appears in the candidate list ( aka rank).
 
@@ -99,18 +99,49 @@ We computed two rank based accuracy :
 
 - Accuracy at Rank@1 :: =( queries with rank < 1 ) / num_queries=
 
-- Accuracy at Rank@1 :: =( queries with rank < 10) / num_queries=
+- Accuracy at Rank@10 :: =( queries with rank < 10) / num_queries=
 
  
 
-* Algorithms                                                       :noexport:
+* Algorithms                                                       :noexport:ARCHIVE:
 ** Selected algorithm 
-
 Faiss
 HNSW
 
-
-
-
 * Results
 
+** Query Time vs accuracy-Rank@1
+
+#+begin_src sh :results output none :exports results :session foo
+cd ~/Projects/ann-benchmarks
+python3 plot.py --dataset vgg-512-euclidean -y queryTime -x accuracy-R@1 -o reports/img/vgg-512-euclidean-query-R1.svg -Y
+#+end_src
+
+[[file:img/vgg-512-euclidean-query-R1.svg]]
+
+** Query Time vs accuracy-Rank@10
+
+#+begin_src sh :results output none :exports results :session foo
+cd ~/Projects/ann-benchmarks
+python3 plot.py --dataset vgg-512-euclidean -y queryTime -x accuracy-R@10 -o reports/img/vgg-512-euclidean-query-R10.svg -Y
+#+end_src
+
+[[file:img/vgg-512-euclidean-query-R10.svg]]
+
+** Index Build Time vs accuracy-Rank@1
+
+#+begin_src sh :results output none :exports results :session foo
+cd ~/Projects/ann-benchmarks
+python3 plot.py --dataset vgg-512-euclidean -y build -x accuracy-R@1 -o reports/img/vgg-512-euclidean-build-R1.svg -Y
+#+end_src
+
+[[file:img/vgg-512-euclidean-build-R1.svg]]
+
+** Index Size vs accuracy-Rank@1
+
+#+begin_src sh :results output none :exports results :session foo
+cd ~/Projects/ann-benchmarks
+python3 plot.py --dataset vgg-512-euclidean -y indexsize -x accuracy-R@1 -o reports/img/vgg-512-euclidean-IndexSize-R1.svg -Y
+#+end_src
+
+[[file:img/vgg-512-euclidean-IndexSize-R1.svg]]
