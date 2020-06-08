@@ -81,7 +81,7 @@ Each individual query time is saved in case we need them for extra analysis.
 
 ** Quality Metrics
 
-The output of the knn-query is a list of neighbors-id in the /Train/ dataset.
+The output of the knn-query is a list of neighbors ids in the /Train/ dataset.
 
 /Note:/ all the queries were executed on a *10-Nearest-Neighbors* index, so the response will always be a list of 10 candidates ordered by distance ( from smallest to largest ) 
 
@@ -101,14 +101,15 @@ We computed two rank based accuracy :
 
 - Accuracy at Rank@10 :: =( queries with rank < 10) / num_queries=
 
- 
 
-* Algorithms                                                       :noexport:ARCHIVE:
+* Algorithms                                                       :noexport:
 ** Selected algorithm 
 Faiss
 HNSW
 
 * Results
+
+Raw results are available here : [[../results/vgg-512-euclidean.csv]]
 
 ** Query Time vs accuracy-Rank@1
 

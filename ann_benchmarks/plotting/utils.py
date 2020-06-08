@@ -83,7 +83,7 @@ def compute_metrics( dataset, res, metric_1, metric_2,
     return all_results
 
 
-def compute_all_metrics(dataset, run, properties, recompute=False):
+def compute_all_metrics(dataset, run, properties, recompute=False, use_cached=False) :
     algo = properties["algo"]
     algo_name = properties["name"]
     print('--')
@@ -91,14 +91,23 @@ def compute_all_metrics(dataset, run, properties, recompute=False):
     results = {}
 
     # cache distances to avoid access to hdf5 file
-    true_nn_distances = numpy.array(dataset["distances"])
-    train_labels= numpy.array(dataset["train_lbl"])
-    query_labels= numpy.array([ n.decode() for n in dataset['test_lbl']])
+    if not use_cached :
+        true_nn_distances = numpy.array(dataset["distances"])
+        train_labels= numpy.array(dataset["train_lbl"])
+        query_labels= numpy.array([ n.decode() for n in dataset['test_lbl']])
 
-    run_distances = numpy.array(run["distances"])
-    run_neighbors = numpy.array(run['neighbors'])
+        run_distances = numpy.array(run["distances"])
+        run_neighbors = numpy.array(run['neighbors'])
 
-    run_labels = compute_run_labels(run_neighbors,train_labels)
+        run_labels = compute_run_labels(run_neighbors,train_labels)
+    else:
+        true_nn_distances = None
+        train_labels = None
+        query_labels = None
+        run_distances = None
+        run_neighbors = None
+        run_labels = None
+
 
     if recompute and 'metrics' in run:
         del run['metrics']
