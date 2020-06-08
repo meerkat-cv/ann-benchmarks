@@ -1,0 +1,119 @@
+# -*- coding: utf-8 ; org-export-babel-evaluate: t; org-confirm-babel-evaluate: nil; org-image-actual-width: 600;-*-
+# -*- mode: org -*-
+#+AUTHOR: Julio Toss
+#+EMAIL: julio@meerkat.com.br
+#+STARTUP: indent 
+#+STARTUP: logdrawer hideblocks
+#+OPTIONS: html-postamble:nil f:nil broken-links:mark H:5 toc:nil todo:nil ^:{}
+#+PROPERTY: header-args :cache no :eval never-export
+#+SEQ_TODO: TODO INPROGRESS(i) WAITING(@) | DONE NOTE DEFERRED(@) CANCELED(@)
+
+
+* DONE Dataset - vgg-512-euclidean
+
+Dataset from face images : https://www.robots.ox.ac.uk/~vgg/data/vgg_face2/
+Face descriptors (feature vectors) were extracted with frapi's method ( arcFace )
+
+#+begin_src python :results output table :exports results
+import numpy as np
+import h5py
+
+filename = "../data/vgg-512-euclidean-rank.hdf5"
+dataset = h5py.File(filename, "r")
+
+#for v in dataset.items():
+#    print(v)
+
+train = set(dataset['train_lbl'])
+test = set(dataset['test_lbl'])
+diff = (test - train) 
+
+print("Vectors type:", dataset['train'].dtype)
+print("Train Vectors:", dataset['train'].shape)
+print("Test Vectors:", dataset['train'].shape)
+
+print("Train Labels:", len(train))
+print("Test Labels:", len(test))
+
+print("Untrained Labels: ", len(diff))
+
+#+end_src
+
+#+RESULTS:
+: Vectors type: float64
+: Train Vectors: (900, 512)
+: Test Vectors: (900, 512)
+: Train Labels: 20
+: Test Labels: 20
+: Untrained Labels:  0
+
+* Evaluation methodolgy 
+
+For each algorithm configuration ( algorithm + parameters ):
+- we build the indexing datastructure one time.
+- Each /RUN/ queries the full dataset. We perform tho test /runs/.
+- each query is executed individually ( no batch queries ).
+
+Resource limits:
+Each test configuration is executed in a docker container. 
+Containers resources where limited to 1 CPU, unlimited memory and run timeout of 5 hours.
+
+
+** Performance Metrics
+*** Index
+- Index build time: we measure the seconds to run the method's =fit= function.
+- Index memory usage: we compute the difference between the Resident Set Size , before and after the fit function.
+
+Sample snippet: 
+#+begin_src sh :results output :exports both
+t0 = time.time()
+memory_usage_before = algo.get_memory_usage()
+algo.fit(X_train)
+build_time = time.time() - t0
+index_size = algo.get_memory_usage() - memory_usage_before
+#+end_src
+
+*** Query Time ( Latency )
+
+In each test run, we measure the time (wall time) for each query individually. 
+Query times for the run are added up and we compute average.
+
+We perform two test /runs/ and take the best average time, which will be reported in our results.
+
+Each individual query time is saved in case we need them for extra analysis.
+
+** Quality Metrics
+
+The output of the knn-query is a list of neighbors-id in the /Train/ dataset.
+
+/Note:/ all the queries were executed on a *10-Nearest-Neighbors* index, so the response we always be a list of 10 candidates ordered by distance ( from smallest to largest ) 
+
+From the list of candidates ids we generate a list candidate labels and compute the first position where the query label appears in the candidate list ( aka rank).
+
+Rank computation:
+#+begin_src python :results output :exports both
+if label in query_labels:
+    rank_q = neighbor_labels.index( label )
+else:
+    rank_q = float(inf)
+#+end_src
+
+We computed two rank based accuracy :
+
+- Accuracy at Rank@1 :: =( queries with rank < 1 ) / num_queries=
+
+- Accuracy at Rank@1 :: =( queries with rank < 10) / num_queries=
+
+ 
+
+* Algorithms                                                       :noexport:
+** Selected algorithm 
+
+Faiss
+HNSW
+
+
+
+
+* Results
+
