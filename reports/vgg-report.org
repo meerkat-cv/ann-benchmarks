@@ -72,12 +72,12 @@ index_size = algo.get_memory_usage() - memory_usage_before
 
 *** Query Time ( Latency )
 
-In each test run, we measure the time (wall time) for each query individually. 
-Query times for the run are added up and we compute average.
+In each test run, we measure seconds (wall time) for each query individually. 
+All queries' times in a single run are added up to the compute average query time.
 
-We perform two test /runs/ and take the best average time, which will be reported in our results.
+We perform two test /runs/ and take the best average time, which is reported in our results.
 
-Each individual query time is saved in case we need them for extra analysis.
+Each individual query time are save to =.hdf5= files in case we need them for extra analysis.
 
 ** Quality Metrics
 
@@ -111,14 +111,45 @@ HNSW
 
 Raw results are available here : [[../results/vgg-512-euclidean.csv]]
 
+#+begin_src R :results output :exports none :session 
+options(crayon.enabled = FALSE)
+options(dplyr.width=Inf)
+
+library(tidyverse)
+df = read_delim("../results/vgg-512-euclidean.csv", delim=',', trim_ws = TRUE )
+head(df)
+#+end_src
+
+
 ** Query Time vs accuracy-Rank@1
 
-#+begin_src sh :results output none :exports results :session foo
+#+begin_src sh :results output none :exports none :session foo
 cd ~/Projects/ann-benchmarks
 python3 plot.py --dataset vgg-512-euclidean -y queryTime -x accuracy-R@1 -o reports/img/vgg-512-euclidean-query-R1.svg -Y
 #+end_src
 
-[[file:img/vgg-512-euclidean-query-R1.svg]]
+# [[file:img/vgg-512-euclidean-query-R1.svg]]
+
+#+begin_src R :results output graphics :file ./img/vgg-512-euclidean-query-R1.svg :exports results :width 8 :height 5 :session 
+library(rPref)
+
+df %>% 
+    filter(`accuracy-R@1` > 0.9) %>%
+    group_by(algorithm) -> dff
+
+dff %>%
+    psel(high(`accuracy-R@1`) * low(queryTime)) -> df_sky
+
+dff %>%  
+    ggplot( aes(x=`accuracy-R@1`, y=queryTime, color=algorithm)) +
+    geom_point(alpha=0.3) +
+    geom_line(data = df_sky) +
+    xlim(NA,0.98) +
+    scale_y_continuous(trans='log10')
+#+end_src
+
+#+RESULTS:
+[[file:./img/vgg-512-euclidean-query-R1.svg]]
 
 ** Query Time vs accuracy-Rank@10
 
