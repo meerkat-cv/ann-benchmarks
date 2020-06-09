@@ -248,7 +248,7 @@ dff %>%
 #+RESULTS:
 [[file:./img/vgg-512-euclidean-build-R1.svg]]
 
-Intersting to note that the exact method (brute-force blass) has less accuracy than other methods
+Interesting to note that the exact method (brute-force blass) has less accuracy than other methods
 #+begin_src R :results table :colnames yes :exports result :session 
 print(df_sky) %>% 
     mutate( query_ms = round(queryTime*1000,2), build_min = round(build/60,2), index_GB = round(indexsize/2**20,2)) %>% 
@@ -321,7 +321,7 @@ df_sky %>%
 [[file:./img/vgg-512-euclidean-IndexSize-R1.svg]]
 
 
-#+begin_src R :results table :colnames yes :exports both :session 
+#+begin_src R :results table :colnames yes :exports results :session 
 print(df_sky) %>% 
     mutate( query_ms = round(queryTime*1000,2), build_min = round(build/60,2), index_GB = round(indexsize/2**20,2)) %>% 
     select(parameters, query_ms, build_min, index_GB,  `accuracy-R@1`, `accuracy-R@10` ) %>% arrange(query_ms) 
