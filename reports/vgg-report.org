@@ -156,6 +156,14 @@ cols(
 6 0.908          0.890           0.898    944.  0.00106   8934.  13264308
 #+end_example
 
+#+begin_src R :results output :exports results :session 
+days <- ( 2*sum(df$queryTime) * 10000 + sum(df$build))  / (3600*24)
+sprintf("Total benchmark duration: %.2f days",  days)
+#+end_src
+
+#+RESULTS:
+: [1] "Total benchmark duration: 15.32 days"
+
 
 ** Query Time vs accuracy-Rank@1
 
@@ -215,7 +223,6 @@ dff %>%
 
 #+RESULTS:
 [[file:./img/vgg-512-euclidean-query-R10.svg]]
-
 
 ** Index Build Time vs accuracy-Rank@1
 
@@ -284,7 +291,6 @@ print(df_sky) %>%
 | BallTree(nmslib) | Nmslib(method_name=vptree, index_param=['tuneK=10', 'desiredRecall=0.95'])               |   227.92 |     37.92 |    11.05 |        0.973 |        0.9841 |
 | BallTree(nmslib) | Nmslib(method_name=vptree, index_param=['desiredRecall=0.97', 'tuneK=10'])               |   267.76 |     39.59 |    11.06 |       0.9732 |         0.984 |
 | bruteforce-blas  | BruteForceBLAS()                                                                         |    672.7 |      0.13 |     5.16 |        0.962 |        0.9838 |
-
 
 ** Index Size vs accuracy-Rank@1
 
