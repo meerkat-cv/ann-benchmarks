@@ -250,38 +250,40 @@ dff %>%
 
 Intersting to note that the exact method (brute-force blass) has less accuracy than other methods
 #+begin_src R :results table :colnames yes :exports result :session 
-print(df_sky) %>% mutate( query_ms = queryTime*1000, build_min = build/60, index_GB = indexsize/2**20) %>% select(parameters, query_ms, build_min, index_GB,  `accuracy-R@1`, `accuracy-R@10` ) %>% arrange(query_ms) 
+print(df_sky) %>% 
+    mutate( query_ms = round(queryTime*1000,2), build_min = round(build/60,2), index_GB = round(indexsize/2**20,2)) %>% 
+    select(parameters, query_ms, build_min, index_GB,  `accuracy-R@1`, `accuracy-R@10` ) %>% arrange(query_ms) 
 #+end_src
 
 #+RESULTS:
-| algorithm        | parameters                                                                               |         query_ms |         build_min |         index_GB | accuracy-R@1 | accuracy-R@10 |
-|------------------+------------------------------------------------------------------------------------------+------------------+-------------------+------------------+--------------+---------------|
-| hnsw(nmslib)     | Nmslib(method_name=hnsw, index_param=['M=12', 'post=0', 'efConstruction=400'])           | 0.57065167427063 |  199.713256665071 | 11.8772773742676 |       0.9601 |        0.9682 |
-| hnswlib          | hnswlib ({'efConstruction': 500, 'M': 16})                                               | 1.06465055942535 |  163.933840147654 | 5.69119644165039 |       0.9722 |        0.9818 |
-| SW-graph(nmslib) | Nmslib(method_name=sw-graph, index_param=['NN=10'])                                      | 1.12618544101715 |  30.4572507778804 | 6.32625579833984 |       0.9269 |        0.9389 |
-| hnswlib          | hnswlib ({'efConstruction': 500, 'M': 24})                                               | 3.50015509128571 |  254.818266665936 | 5.85143280029297 |       0.9731 |        0.9838 |
-| BallTree(nmslib) | Nmslib(method_name=vptree, index_param=['tuneK=10', 'desiredRecall=0.1'])                | 3.97013547420502 |   12.812122631073 | 11.0524711608887 |       0.9502 |         0.965 |
-| mrpt             | MRPT(target recall=0.970, trees=856, depth=13, vote threshold=3, estimated recall=0.970) | 5.35754635334015 |  72.4786807815234 | 16.2200355529785 |       0.9734 |        0.9827 |
-| SW-graph(nmslib) | Nmslib(method_name=sw-graph, index_param=['NN=16'])                                      | 7.59525680541992 |  38.3294889052709 | 6.68539428710938 |       0.9703 |        0.9798 |
-| faiss-ivf        | FaissIVF(n_list=4096, n_probe=5)                                                         | 7.81679108142853 |  69.1803858836492 | 7.04918670654297 |       0.9619 |        0.9712 |
-| BallTree(nmslib) | Nmslib(method_name=vptree, index_param=['tuneK=10', 'desiredRecall=0.2'])                | 8.75611157417297 |   14.792657037576 | 11.0511779785156 |       0.9594 |        0.9734 |
-| SW-graph(nmslib) | Nmslib(method_name=sw-graph, index_param=['NN=24'])                                      | 9.12847907543182 |  49.2221029361089 |  7.1082878112793 |       0.9714 |        0.9818 |
-| NGT-panng        | PANNG-NGT(20, 40, 60, 1.200)                                                             | 16.7930703163147 |  92.1775797645251 | 8.05573272705078 |       0.9731 |        0.9838 |
-| BallTree(nmslib) | Nmslib(method_name=vptree, index_param=['tuneK=10', 'desiredRecall=0.3'])                | 17.1641060352325 |  17.4534963409106 | 11.0516929626465 |       0.9665 |        0.9796 |
-| BallTree(nmslib) | Nmslib(method_name=vptree, index_param=['desiredRecall=0.4', 'tuneK=10'])                | 25.1622835636139 |  19.5538271427155 | 11.0526313781738 |       0.9683 |        0.9812 |
-| NGT-onng         | ONNG-NGT(100, 10, 120, -2, 1.200)                                                        | 25.3839553833008 |   148.90233412981 |  12.649829864502 |       0.9731 |        0.9838 |
-| BallTree(nmslib) | Nmslib(method_name=vptree, index_param=['tuneK=10', 'desiredRecall=0.5'])                | 40.6399333000183 |  20.6441198706627 | 11.0484504699707 |       0.9689 |        0.9812 |
-| annoy            | Annoy(n_trees=100, search_k=100000)                                                      | 41.2896107912064 |  30.5803576032321 | 9.73402404785156 |       0.9725 |        0.9827 |
-| faiss-ivf        | FaissIVF(n_list=8192, n_probe=100)                                                       | 55.3959785223007 |  245.053373984496 | 6.95387268066406 |       0.9731 |        0.9818 |
-| BallTree(nmslib) | Nmslib(method_name=vptree, index_param=['desiredRecall=0.6', 'tuneK=10'])                | 56.0337100028992 |  22.2244418780009 | 11.0520935058594 |       0.9701 |        0.9821 |
-| BallTree(nmslib) | Nmslib(method_name=vptree, index_param=['desiredRecall=0.7', 'tuneK=10'])                | 75.2319760799408 |  33.6263937393824 | 11.0540771484375 |       0.9719 |        0.9835 |
-| annoy            | Annoy(n_trees=200, search_k=200000)                                                      | 75.5549807548523 |  58.7620766202609 | 12.6541976928711 |       0.9731 |        0.9838 |
-| BallTree(nmslib) | Nmslib(method_name=vptree, index_param=['tuneK=10', 'desiredRecall=0.8'])                | 118.189064955711 |  34.1173119942347 | 11.0523338317871 |       0.9723 |        0.9835 |
-| BallTree(nmslib) | Nmslib(method_name=vptree, index_param=['desiredRecall=0.85', 'tuneK=10'])               | 137.541626477242 |  34.2718070705732 | 11.1734619140625 |       0.9726 |        0.9837 |
-| BallTree(nmslib) | Nmslib(method_name=vptree, index_param=['desiredRecall=0.9', 'tuneK=10'])                | 170.382858538628 |  37.1342719872793 | 11.0531311035156 |       0.9729 |         0.984 |
-| BallTree(nmslib) | Nmslib(method_name=vptree, index_param=['tuneK=10', 'desiredRecall=0.95'])               | 227.916754460335 |  37.9180619637171 | 11.0534553527832 |        0.973 |        0.9841 |
-| BallTree(nmslib) | Nmslib(method_name=vptree, index_param=['desiredRecall=0.97', 'tuneK=10'])               | 267.756254792213 |  39.5940539797147 | 11.0581321716309 |       0.9732 |         0.984 |
-| bruteforce-blas  | BruteForceBLAS()                                                                         | 672.702276968956 | 0.126939809322357 | 5.16335296630859 |        0.962 |        0.9838 |
+| algorithm        | parameters                                                                               | query_ms | build_min | index_GB | accuracy-R@1 | accuracy-R@10 |
+|------------------+------------------------------------------------------------------------------------------+----------+-----------+----------+--------------+---------------|
+| hnsw(nmslib)     | Nmslib(method_name=hnsw, index_param=['M=12', 'post=0', 'efConstruction=400'])           |     0.57 |    199.71 |    11.88 |       0.9601 |        0.9682 |
+| hnswlib          | hnswlib ({'efConstruction': 500, 'M': 16})                                               |     1.06 |    163.93 |     5.69 |       0.9722 |        0.9818 |
+| SW-graph(nmslib) | Nmslib(method_name=sw-graph, index_param=['NN=10'])                                      |     1.13 |     30.46 |     6.33 |       0.9269 |        0.9389 |
+| hnswlib          | hnswlib ({'efConstruction': 500, 'M': 24})                                               |      3.5 |    254.82 |     5.85 |       0.9731 |        0.9838 |
+| BallTree(nmslib) | Nmslib(method_name=vptree, index_param=['tuneK=10', 'desiredRecall=0.1'])                |     3.97 |     12.81 |    11.05 |       0.9502 |         0.965 |
+| mrpt             | MRPT(target recall=0.970, trees=856, depth=13, vote threshold=3, estimated recall=0.970) |     5.36 |     72.48 |    16.22 |       0.9734 |        0.9827 |
+| SW-graph(nmslib) | Nmslib(method_name=sw-graph, index_param=['NN=16'])                                      |      7.6 |     38.33 |     6.69 |       0.9703 |        0.9798 |
+| faiss-ivf        | FaissIVF(n_list=4096, n_probe=5)                                                         |     7.82 |     69.18 |     7.05 |       0.9619 |        0.9712 |
+| BallTree(nmslib) | Nmslib(method_name=vptree, index_param=['tuneK=10', 'desiredRecall=0.2'])                |     8.76 |     14.79 |    11.05 |       0.9594 |        0.9734 |
+| SW-graph(nmslib) | Nmslib(method_name=sw-graph, index_param=['NN=24'])                                      |     9.13 |     49.22 |     7.11 |       0.9714 |        0.9818 |
+| NGT-panng        | PANNG-NGT(20, 40, 60, 1.200)                                                             |    16.79 |     92.18 |     8.06 |       0.9731 |        0.9838 |
+| BallTree(nmslib) | Nmslib(method_name=vptree, index_param=['tuneK=10', 'desiredRecall=0.3'])                |    17.16 |     17.45 |    11.05 |       0.9665 |        0.9796 |
+| BallTree(nmslib) | Nmslib(method_name=vptree, index_param=['desiredRecall=0.4', 'tuneK=10'])                |    25.16 |     19.55 |    11.05 |       0.9683 |        0.9812 |
+| NGT-onng         | ONNG-NGT(100, 10, 120, -2, 1.200)                                                        |    25.38 |     148.9 |    12.65 |       0.9731 |        0.9838 |
+| BallTree(nmslib) | Nmslib(method_name=vptree, index_param=['tuneK=10', 'desiredRecall=0.5'])                |    40.64 |     20.64 |    11.05 |       0.9689 |        0.9812 |
+| annoy            | Annoy(n_trees=100, search_k=100000)                                                      |    41.29 |     30.58 |     9.73 |       0.9725 |        0.9827 |
+| faiss-ivf        | FaissIVF(n_list=8192, n_probe=100)                                                       |     55.4 |    245.05 |     6.95 |       0.9731 |        0.9818 |
+| BallTree(nmslib) | Nmslib(method_name=vptree, index_param=['desiredRecall=0.6', 'tuneK=10'])                |    56.03 |     22.22 |    11.05 |       0.9701 |        0.9821 |
+| BallTree(nmslib) | Nmslib(method_name=vptree, index_param=['desiredRecall=0.7', 'tuneK=10'])                |    75.23 |     33.63 |    11.05 |       0.9719 |        0.9835 |
+| annoy            | Annoy(n_trees=200, search_k=200000)                                                      |    75.55 |     58.76 |    12.65 |       0.9731 |        0.9838 |
+| BallTree(nmslib) | Nmslib(method_name=vptree, index_param=['tuneK=10', 'desiredRecall=0.8'])                |   118.19 |     34.12 |    11.05 |       0.9723 |        0.9835 |
+| BallTree(nmslib) | Nmslib(method_name=vptree, index_param=['desiredRecall=0.85', 'tuneK=10'])               |   137.54 |     34.27 |    11.17 |       0.9726 |        0.9837 |
+| BallTree(nmslib) | Nmslib(method_name=vptree, index_param=['desiredRecall=0.9', 'tuneK=10'])                |   170.38 |     37.13 |    11.05 |       0.9729 |         0.984 |
+| BallTree(nmslib) | Nmslib(method_name=vptree, index_param=['tuneK=10', 'desiredRecall=0.95'])               |   227.92 |     37.92 |    11.05 |        0.973 |        0.9841 |
+| BallTree(nmslib) | Nmslib(method_name=vptree, index_param=['desiredRecall=0.97', 'tuneK=10'])               |   267.76 |     39.59 |    11.06 |       0.9732 |         0.984 |
+| bruteforce-blas  | BruteForceBLAS()                                                                         |    672.7 |      0.13 |     5.16 |        0.962 |        0.9838 |
 
 
 ** Index Size vs accuracy-Rank@1
@@ -320,31 +322,33 @@ df_sky %>%
 
 
 #+begin_src R :results table :colnames yes :exports both :session 
-print(df_sky) %>% mutate( query_ms = queryTime*1000, index_GB = indexsize/2**20) %>% select(parameters, query_ms, index_GB,  `accuracy-R@1`, `accuracy-R@10` ) %>% arrange(query_ms) 
+print(df_sky) %>% 
+    mutate( query_ms = round(queryTime*1000,2), build_min = round(build/60,2), index_GB = round(indexsize/2**20,2)) %>% 
+    select(parameters, query_ms, build_min, index_GB,  `accuracy-R@1`, `accuracy-R@10` ) %>% arrange(query_ms) 
 #+end_src
 
 #+RESULTS:
-| algorithm        | parameters                                                                               |         query_ms |         index_GB | accuracy-R@1 | accuracy-R@10 |
-|------------------+------------------------------------------------------------------------------------------+------------------+------------------+--------------+---------------|
-| hnsw(nmslib)     | Nmslib(method_name=hnsw, index_param=['M=12', 'post=0', 'efConstruction=400'])           | 0.57065167427063 | 11.8772773742676 |       0.9601 |        0.9682 |
-| hnswlib          | hnswlib ({'efConstruction': 500, 'M': 16})                                               | 1.06465055942535 | 5.69119644165039 |       0.9722 |        0.9818 |
-| SW-graph(nmslib) | Nmslib(method_name=sw-graph, index_param=['NN=10'])                                      | 1.12618544101715 | 6.32625579833984 |       0.9269 |        0.9389 |
-| hnswlib          | hnswlib ({'efConstruction': 500, 'M': 24})                                               | 3.50015509128571 | 5.85143280029297 |       0.9731 |        0.9838 |
-| mrpt             | MRPT(target recall=0.970, trees=856, depth=13, vote threshold=3, estimated recall=0.970) | 5.35754635334015 | 16.2200355529785 |       0.9734 |        0.9827 |
-| SW-graph(nmslib) | Nmslib(method_name=sw-graph, index_param=['NN=16'])                                      | 7.59525680541992 | 6.68539428710938 |       0.9703 |        0.9798 |
-| SW-graph(nmslib) | Nmslib(method_name=sw-graph, index_param=['NN=24'])                                      | 9.12847907543182 |  7.1082878112793 |       0.9714 |        0.9818 |
-| NGT-panng        | PANNG-NGT(20, 40, 60, 1.200)                                                             | 16.7930703163147 | 8.05573272705078 |       0.9731 |        0.9838 |
-| NGT-onng         | ONNG-NGT(100, 10, 120, -2, 1.200)                                                        | 25.3839553833008 |  12.649829864502 |       0.9731 |        0.9838 |
-| BallTree(nmslib) | Nmslib(method_name=vptree, index_param=['tuneK=10', 'desiredRecall=0.5'])                | 40.6399333000183 | 11.0484504699707 |       0.9689 |        0.9812 |
-| annoy            | Annoy(n_trees=100, search_k=100000)                                                      | 41.2896107912064 | 9.73402404785156 |       0.9725 |        0.9827 |
-| faiss-ivf        | FaissIVF(n_list=8192, n_probe=100)                                                       | 55.3959785223007 | 6.95387268066406 |       0.9731 |        0.9818 |
-| BallTree(nmslib) | Nmslib(method_name=vptree, index_param=['desiredRecall=0.6', 'tuneK=10'])                | 56.0337100028992 | 11.0520935058594 |       0.9701 |        0.9821 |
-| annoy            | Annoy(n_trees=200, search_k=200000)                                                      | 75.5549807548523 | 12.6541976928711 |       0.9731 |        0.9838 |
-| BallTree(nmslib) | Nmslib(method_name=vptree, index_param=['tuneK=10', 'desiredRecall=0.8'])                | 118.189064955711 | 11.0523338317871 |       0.9723 |        0.9835 |
-| BallTree(nmslib) | Nmslib(method_name=vptree, index_param=['desiredRecall=0.9', 'tuneK=10'])                | 170.382858538628 | 11.0531311035156 |       0.9729 |         0.984 |
-| BallTree(nmslib) | Nmslib(method_name=vptree, index_param=['tuneK=10', 'desiredRecall=0.95'])               | 227.916754460335 | 11.0534553527832 |        0.973 |        0.9841 |
-| BallTree(nmslib) | Nmslib(method_name=vptree, index_param=['desiredRecall=0.97', 'tuneK=10'])               | 267.756254792213 | 11.0581321716309 |       0.9732 |         0.984 |
-| bruteforce-blas  | BruteForceBLAS()                                                                         | 672.702276968956 | 5.16335296630859 |        0.962 |        0.9838 |
+| algorithm        | parameters                                                                               | query_ms | build_min | index_GB | accuracy-R@1 | accuracy-R@10 |
+|------------------+------------------------------------------------------------------------------------------+----------+-----------+----------+--------------+---------------|
+| hnsw(nmslib)     | Nmslib(method_name=hnsw, index_param=['M=12', 'post=0', 'efConstruction=400'])           |     0.57 |    199.71 |    11.88 |       0.9601 |        0.9682 |
+| hnswlib          | hnswlib ({'efConstruction': 500, 'M': 16})                                               |     1.06 |    163.93 |     5.69 |       0.9722 |        0.9818 |
+| SW-graph(nmslib) | Nmslib(method_name=sw-graph, index_param=['NN=10'])                                      |     1.13 |     30.46 |     6.33 |       0.9269 |        0.9389 |
+| hnswlib          | hnswlib ({'efConstruction': 500, 'M': 24})                                               |      3.5 |    254.82 |     5.85 |       0.9731 |        0.9838 |
+| mrpt             | MRPT(target recall=0.970, trees=856, depth=13, vote threshold=3, estimated recall=0.970) |     5.36 |     72.48 |    16.22 |       0.9734 |        0.9827 |
+| SW-graph(nmslib) | Nmslib(method_name=sw-graph, index_param=['NN=16'])                                      |      7.6 |     38.33 |     6.69 |       0.9703 |        0.9798 |
+| SW-graph(nmslib) | Nmslib(method_name=sw-graph, index_param=['NN=24'])                                      |     9.13 |     49.22 |     7.11 |       0.9714 |        0.9818 |
+| NGT-panng        | PANNG-NGT(20, 40, 60, 1.200)                                                             |    16.79 |     92.18 |     8.06 |       0.9731 |        0.9838 |
+| NGT-onng         | ONNG-NGT(100, 10, 120, -2, 1.200)                                                        |    25.38 |     148.9 |    12.65 |       0.9731 |        0.9838 |
+| BallTree(nmslib) | Nmslib(method_name=vptree, index_param=['tuneK=10', 'desiredRecall=0.5'])                |    40.64 |     20.64 |    11.05 |       0.9689 |        0.9812 |
+| annoy            | Annoy(n_trees=100, search_k=100000)                                                      |    41.29 |     30.58 |     9.73 |       0.9725 |        0.9827 |
+| faiss-ivf        | FaissIVF(n_list=8192, n_probe=100)                                                       |     55.4 |    245.05 |     6.95 |       0.9731 |        0.9818 |
+| BallTree(nmslib) | Nmslib(method_name=vptree, index_param=['desiredRecall=0.6', 'tuneK=10'])                |    56.03 |     22.22 |    11.05 |       0.9701 |        0.9821 |
+| annoy            | Annoy(n_trees=200, search_k=200000)                                                      |    75.55 |     58.76 |    12.65 |       0.9731 |        0.9838 |
+| BallTree(nmslib) | Nmslib(method_name=vptree, index_param=['tuneK=10', 'desiredRecall=0.8'])                |   118.19 |     34.12 |    11.05 |       0.9723 |        0.9835 |
+| BallTree(nmslib) | Nmslib(method_name=vptree, index_param=['desiredRecall=0.9', 'tuneK=10'])                |   170.38 |     37.13 |    11.05 |       0.9729 |         0.984 |
+| BallTree(nmslib) | Nmslib(method_name=vptree, index_param=['tuneK=10', 'desiredRecall=0.95'])               |   227.92 |     37.92 |    11.05 |        0.973 |        0.9841 |
+| BallTree(nmslib) | Nmslib(method_name=vptree, index_param=['desiredRecall=0.97', 'tuneK=10'])               |   267.76 |     39.59 |    11.06 |       0.9732 |         0.984 |
+| bruteforce-blas  | BruteForceBLAS()                                                                         |    672.7 |      0.13 |     5.16 |        0.962 |        0.9838 |
 
 
 
