@@ -89,8 +89,8 @@ From the list of candidates ids we generate a list candidate labels and compute 
 
 Rank computation:
 #+begin_src python :results output :exports both
-if label in query_labels:
-    rank_q = neighbor_labels.index( label )
+if query_label in neighbor_labels:
+    rank_q = neighbor_labels.index( query_label )
 else:
     rank_q = float(inf)
 #+end_src
