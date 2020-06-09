@@ -180,6 +180,9 @@ cd ~/Projects/ann-benchmarks
 python3 plot.py --dataset vgg-512-euclidean -y queryTime -x accuracy-R@1 -o reports/img/vgg-512-euclidean-query-R1.svg -Y
 #+end_src
 
+In addition to the scatter plot ( transparent points ) we also draw lines connecting points on the Pareto frontier. 
+I.e. The set of optimal of runs that Minimize =Query Time= and =Maximize Accuracy=.
+
 #+begin_src R :results output graphics :file ./img/vgg-512-euclidean-query-R1.svg :exports results :width 8 :height 5 :session 
 library(rPref)
 
@@ -234,12 +237,17 @@ dff %>%
 
 ** Index Build Time vs accuracy-Rank@1
 
+The scatter plot shows all the evaluated runs, while the lines show the optimal set of runs.
+
+In this case, the optimal runs are selected first by taking the optimal points w.r.t =R@1 X QueryTime= and 
+then selecting points to optimize =R@1 x Build Time=. 
+The resulting set is shown in table bellow.
+
 #+begin_src sh :results output none :exports none :session foo :eval never
 cd ~/Projects/ann-benchmarks
 python3 plot.py --dataset vgg-512-euclidean -y build -x accuracy-R@1 -o reports/img/vgg-512-euclidean-build-R1.svg -Y
 #+end_src
 
-Selection of results minimizing QueryTime, then, build Time 
 #+begin_src R :results output graphics :file ./img/vgg-512-euclidean-build-R1.svg :exports results :width 8 :height 5 :session 
 library(rPref)
 
@@ -263,7 +271,9 @@ dff %>%
 #+RESULTS:
 [[file:./img/vgg-512-euclidean-build-R1.svg]]
 
-Interesting to note that the exact method (brute-force blass) has less accuracy than other methods
+Interesting to note that the exact method (brute-force blas) has less accuracy than other methods
+
+The table shows all the values that have optimal Built Time and also optimal Query Time.
 #+begin_src R :results table :colnames yes :exports result :session 
 print(df_sky) %>% 
     mutate( query_ms = round(queryTime*1000,2), build_min = round(build/60,2), index_GB = round(indexsize/2**20,2)) %>% 
@@ -302,13 +312,16 @@ print(df_sky) %>%
 
 ** Index Size vs accuracy-Rank@1
 
-
 #+begin_src sh :results output none :exports none :session foo
 cd ~/Projects/ann-benchmarks
 python3 plot.py --dataset vgg-512-euclidean -y indexsize -x accuracy-R@1 -o reports/img/vgg-512-euclidean-IndexSize-R1.svg -Y
 #+end_src
 
-Selection of results optimizing QueryTime then IndexSize
+Like in the previous plot we make two rounds of filtering:
+- first take optimal values w.r.t =R@1 X Query Time=.
+- then, take optimal values w.r.t =R@1 X Index Size=.
+
+The following plot and table shows these optimal values only.
 
 #+begin_src R :results output graphics :file ./img/vgg-512-euclidean-IndexSize-R1.svg :exports results :width 8 :height 5 :session 
 library(rPref)
