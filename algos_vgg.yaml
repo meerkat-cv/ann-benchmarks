@@ -40,7 +40,9 @@ float:
       base-args: ["@metric"]
       run-groups:
         base:
+          # args: parameter to build the index
           args: [[32,64,128,256,512,1024,2048,4096,8192]]
+          # args: parameter while querying the index
           query-args: [[1, 5, 10, 50, 100, 200]]
     faiss-gpu:
       disabled: true
@@ -219,7 +221,7 @@ float:
           query-args: [[10, 20, 40, 80, 120, 200, 400, 600, 800]] 
 
     bruteforce:
-      disabled: true
+      disabled: false
       docker-tag: ann-benchmarks-sklearn
       module: ann_benchmarks.algorithms.bruteforce
       constructor: BruteForce
