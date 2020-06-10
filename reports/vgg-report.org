@@ -8,6 +8,16 @@
 #+PROPERTY: header-args :cache no :eval never-export
 #+SEQ_TODO: TODO INPROGRESS(i) WAITING(@) | DONE NOTE DEFERRED(@) CANCELED(@)
 
+* Content                                                               :TOC:
+- [[#dataset---vgg-512-euclidean][Dataset - vgg-512-euclidean]]
+- [[#evaluation-methodology][Evaluation methodology]]
+  - [[#performance-metrics][Performance Metrics]]
+  - [[#quality-metrics][Quality Metrics]]
+- [[#results][Results]]
+  - [[#query-time-vs-accuracy-rank1][Query Time vs accuracy-Rank@1]]
+  - [[#query-time-vs-accuracy-rank10][Query Time vs accuracy-Rank@10]]
+  - [[#index-build-time-vs-accuracy-rank1][Index Build Time vs accuracy-Rank@1]]
+  - [[#index-size-vs-accuracy-rank1][Index Size vs accuracy-Rank@1]]
 
 * DONE Dataset - vgg-512-euclidean
 
@@ -385,3 +395,10 @@ print(df_sky) %>%
 
 
 
+
+* TODO TO-DO [0/4]                                                 :noexport:
+
+- [ ] Select algorithm to run multi-threaded
+- [ ] Check which methods allow index updates
+- [ ] Show knn-recall ressults
+- [ ] Colocar também os dados do Recall
