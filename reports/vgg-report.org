@@ -119,6 +119,12 @@ HNSW
 
 * Results
 
+#+begin_src sh :results none :exports both 
+# To export all the metrics to a csv.
+cd ../
+python3 export_to_csv.py --dataset vgg-512-euclidean
+#+end_src
+
 Raw results are available here : [[../results/vgg-512-euclidean.csv]]
 
 #+begin_src R :results output :exports none :session 
