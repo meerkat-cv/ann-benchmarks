@@ -7,4 +7,5 @@ WORKDIR /home/app
 COPY requirements.txt run_algorithm.py ./
 RUN pip3 install -rrequirements.txt
 
-ENTRYPOINT ["python3", "run_algorithm.py"]
+ENV PYTHONUNBUFFERED=1
+ENTRYPOINT ["python3", "-u", "run_algorithm.py"]

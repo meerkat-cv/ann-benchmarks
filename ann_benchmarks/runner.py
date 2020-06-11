@@ -48,8 +48,8 @@ def run_individual_query(algo, X_train, X_test, distance, count, run_count,
                           for idx in candidates]
             n_items_processed[0] += 1
             if n_items_processed[0] % 1000 == 0:
-                print('Processed %d/%d queries...' %
-                      (n_items_processed[0], len(X_test)))
+                print('Processed %d/%d queries... Last query time = %f' %
+                      (n_items_processed[0], len(X_test), total))
             if len(candidates) > count:
                 print('warning: algorithm %s returned %d results, but count'
                       ' is only %d)' % (algo, len(candidates), count))
@@ -259,4 +259,5 @@ def run_docker(definition, dataset, count, runs, timeout, batch, cpu_limit,
             raise Exception('Child process raised exception {}'.format(exit_code))
 
     finally:
-        container.remove(force=True)
+        #container.remove(force=True)
+        pass
