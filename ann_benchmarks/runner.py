@@ -276,5 +276,6 @@ def run_docker(definition, dataset, count, runs, timeout, batch, cpu_limit,
             raise Exception('Child process raised exception {}'.format(exit_code))
 
     finally:
+        print("Stopping container...")
         container.stop()
         pass
