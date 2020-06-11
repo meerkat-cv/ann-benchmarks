@@ -5,6 +5,8 @@ import json
 import os
 import re
 
+import numpy as np
+
 
 def get_algorithm_name(name, batch_mode):
     if batch_mode:
@@ -30,9 +32,7 @@ def get_result_filename(dataset=None, count=None, definition=None,
                                                 sort_keys=True)).strip('_'))
     return os.path.join(*d)
 
-
-def store_results(dataset, count, definition, query_arguments, attrs, results,
-                  batch):
+def create_results(dataset, count, definition, query_arguments, attrs, results_len, batch):
     fn = get_result_filename(
         dataset, count, definition, query_arguments, batch)
     head, tail = os.path.split(fn)
@@ -41,13 +41,27 @@ def store_results(dataset, count, definition, query_arguments, attrs, results,
     f = h5py.File(fn, 'w')
     for k, v in attrs.items():
         f.attrs[k] = v
-    times = f.create_dataset('times', (len(results),), 'f')
-    neighbors = f.create_dataset('neighbors', (len(results), count), 'i')
-    distances = f.create_dataset('distances', (len(results), count), 'f')
+    #times = f.create_dataset('times', (results_len,), 'f')
+    times = f.create_dataset('times', data=np.full((results_len,),np.inf))
+    #neighbors = f.create_dataset('neighbors', (results_len, count), 'i')
+    neighbors = f.create_dataset('neighbors', data=np.full((results_len, count), -1))
+    #distances = f.create_dataset('distances', (len(results), count), 'f')
+    distances = f.create_dataset('distances', data=np.full((results_len, count), np.inf ))
+    f.close()
+    return fn
+
+def store_results(fn, count, attrs, results, batch):
+    """
+    Overwrites the results into existing dataset
+    """
+    f = h5py.File(fn, 'a') # append existing result file
+    for k, v in attrs.items():
+        f.attrs[k] = v
+
     for i, (time, ds) in enumerate(results):
-        times[i] = time
-        neighbors[i] = [n for n, d in ds] + [-1] * (count - len(ds))
-        distances[i] = [d for n, d in ds] + [float('inf')] * (count - len(ds))
+        f['times'][i] = time
+        f['neighbors'][i,:] = [n for n, d in ds] + [-1] * (count - len(ds))
+        f['distances'][i,:] = [d for n, d in ds] + [float('inf')] * (count - len(ds))
     f.close()
 
 

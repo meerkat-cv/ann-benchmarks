@@ -18,20 +18,31 @@ from ann_benchmarks.algorithms.definitions import (Definition,
                                                    instantiate_algorithm,
                                                    get_algorithm_name)
 from ann_benchmarks.distance import metrics, dataset_transform
-from ann_benchmarks.results import store_results
+from ann_benchmarks.results import store_results, create_results
 
 
 def run_individual_query(algo, X_train, X_test, distance, count, run_count,
-                         batch):
+                         batch, res_fn):
     prepared_queries = \
         (batch and hasattr(algo, "prepare_batch_query")) or \
         ((not batch) and hasattr(algo, "prepare_query"))
 
+
+    verbose = hasattr(algo, "query_verbose")
     best_search_time = float('inf')
+    attrs = {
+        "batch_mode": batch,
+        "expect_extra": verbose,
+        "name": str(algo),
+        "run_count": run_count,
+        "distance": distance,
+        "count": int(count)
+    }
+
     for i in range(run_count):
         print('Run %d/%d...' % (i + 1, run_count))
         # a bit dumb but can't be a scalar since of Python's scoping rules
-        n_items_processed = [0]
+        n_items_processed = 0
 
         def single_query(v):
             if prepared_queries:
@@ -46,10 +57,7 @@ def run_individual_query(algo, X_train, X_test, distance, count, run_count,
                 total = (time.time() - start)
             candidates = [(int(idx), float(metrics[distance]['distance'](v, X_train[idx])))  # noqa
                           for idx in candidates]
-            n_items_processed[0] += 1
-            if n_items_processed[0] % 1000 == 0:
-                print('Processed %d/%d queries... Last query time = %f' %
-                      (n_items_processed[0], len(X_test), total))
+
             if len(candidates) > count:
                 print('warning: algorithm %s returned %d results, but count'
                       ' is only %d)' % (algo, len(candidates), count))
@@ -74,7 +82,18 @@ def run_individual_query(algo, X_train, X_test, distance, count, run_count,
         if batch:
             results = batch_query(X_test)
         else:
-            results = [single_query(x) for x in X_test]
+            # NOTE : results  is overwritten in each run !!
+            results = []
+            for x in X_test:
+                r = single_query(x)
+                results.append(r)
+                n_items_processed += 1
+                if n_items_processed[0] % 1000 == 0:
+                    print('Processed %d/%d queries... Last query time = %f' %
+                        (n_items_processed[0], len(X_test), r[0]))
+                    # Store partial results, usefull for long running tests that may timeout
+                    store_results(res_fn, count, attrs, results, batch)
+
 
         total_time = sum(time for time, _ in results)
         total_candidates = sum(len(candidates) for _, candidates in results)
@@ -82,17 +101,9 @@ def run_individual_query(algo, X_train, X_test, distance, count, run_count,
         avg_candidates = total_candidates / len(X_test)
         best_search_time = min(best_search_time, search_time)
 
-    verbose = hasattr(algo, "query_verbose")
-    attrs = {
-        "batch_mode": batch,
-        "best_search_time": best_search_time,
-        "candidates": avg_candidates,
-        "expect_extra": verbose,
-        "name": str(algo),
-        "run_count": run_count,
-        "distance": distance,
-        "count": int(count)
-    }
+    attrs["candidates"] = avg_candidates
+    attrs["best_search_time"] = best_search_time
+
     additional = algo.get_additional()
     for k in additional:
         attrs[k] = additional[k]
@@ -137,19 +148,25 @@ function""" % (definition.module, definition.constructor, definition.arguments)
             query_argument_groups = [[]]
 
         for pos, query_arguments in enumerate(query_argument_groups, 1):
+            descriptor = {}
+            descriptor["build_time"] = build_time
+            descriptor["index_size"] = index_size
+            descriptor["algo"] = get_algorithm_name( definition.algorithm, batch)
+            descriptor["dataset"] = dataset
+
+            res_fn = create_results(dataset, count, definition, query_arguments, descriptor, len(X_test), batch)
+
             print("Running query argument group %d of %d..." %
                   (pos, len(query_argument_groups)))
             if query_arguments:
                 algo.set_query_arguments(*query_arguments)
+
+            # Run the queries with current configuration
             descriptor, results = run_individual_query(
-                algo, X_train, X_test, distance, count, run_count, batch)
-            descriptor["build_time"] = build_time
-            descriptor["index_size"] = index_size
-            descriptor["algo"] = get_algorithm_name(
-                definition.algorithm, batch)
-            descriptor["dataset"] = dataset
-            store_results(dataset, count, definition,
-                          query_arguments, descriptor, results, batch)
+                algo, X_train, X_test, distance, count, run_count, batch, res_fn)
+
+            # Store final results
+            store_results(res_fn, count, descriptor, results, batch)
     finally:
         algo.done()
 
@@ -259,5 +276,5 @@ def run_docker(definition, dataset, count, runs, timeout, batch, cpu_limit,
             raise Exception('Child process raised exception {}'.format(exit_code))
 
     finally:
-        #container.remove(force=True)
+        container.stop()
         pass
