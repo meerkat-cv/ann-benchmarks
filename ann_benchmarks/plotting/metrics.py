@@ -12,6 +12,9 @@ def epsilon_threshold(data, count, epsilon):
 
 def get_recall_values(dataset_distances, run_distances, count, threshold,
                       epsilon=1e-3):
+    """
+    Recall based on distances to neighbors, allow distance error of epslion
+    """
     recalls = np.zeros(len(run_distances))
     for i in range(len(run_distances)):
         t = threshold(dataset_distances[i], count, epsilon)
@@ -25,19 +28,57 @@ def get_recall_values(dataset_distances, run_distances, count, threshold,
             recalls)
 
 
-def knn(dataset_distances, run_distances, count, metrics, epsilon=1e-3):
-    if 'knn' not in metrics:
+def get_recall_from_sets(dataset_neighbors, run_neighbors, k, threshold):
+    """
+    Recall base o set on intersection of elements from ANN with the KNN ground-truth
+    """
+    recalls = np.zeros(len(run_neighbors))
+    for i in range(len(run_neighbors)):
+        I = np.intersect1d(run_neighbors[i],dataset_neighbors[i][:k])
+        recalls[i] = len(I)
+
+    return (np.mean(recalls) / float(k),
+            np.std(recalls) / float(k),
+            recalls)
+
+
+def knnDist(dataset_distances, run_distances, count, metrics, epsilon=1e-3):
+    """
+    Computes the knn-recall based on distances to neighbors, allow distance error of epslion.
+    """
+    group='knnDist'
+    if group not in metrics:
         print('Computing knn metrics')
-        knn_metrics = metrics.create_group('knn')
+        knn_metrics = metrics.create_group(group)
         mean, std, recalls = get_recall_values(dataset_distances,
                                                run_distances, count,
                                                knn_threshold, epsilon)
+
         knn_metrics.attrs['mean'] = mean
         knn_metrics.attrs['std'] = std
         knn_metrics['recalls'] = recalls
     else:
         print("Found cached result")
-    return metrics['knn']
+    return metrics[group]
+
+
+def knnSet(dataset_neighbors, run_neighbors, k, metrics):
+    """
+    Computes the recall of a query based on the interection os Run_neighbors and the dataset neighbors.
+    """
+    group='knnSet'
+    if group not in metrics:
+        print('Computing knn metrics')
+        knn_metrics = metrics.create_group(group)
+        mean, std, recalls = get_recall_from_sets(dataset_neighbors,
+                                                  run_neighbors, k,
+                                                  knn_threshold)
+        knn_metrics.attrs['mean'] = mean
+        knn_metrics.attrs['std'] = std
+        knn_metrics['recalls'] = recalls
+    else:
+        print("Found cached result")
+    return metrics[group]
 
 
 def epsilon(dataset_distances, run_distances, count, metrics, epsilon=0.01):
@@ -59,7 +100,6 @@ def epsilon(dataset_distances, run_distances, count, metrics, epsilon=0.01):
 def get_rank_values( query_labels, run_labels ):
     rank = []
     for q, neighbors in zip(query_labels, run_labels):
-    #    print(q,neighbors)
         pos_arr = np.where(neighbors == q)#[0][0]#. #.index(q)
         if len(pos_arr[0]) == 0:
             r = float('inf')
@@ -144,11 +184,16 @@ def dist_computations(queries, attrs):
 
 
 all_metrics = {
-    "k-nn": {
-        "description": "Recall",
-        "function": lambda true_distances, run_distances, metrics, run_attrs, *args: knn(true_distances, run_distances, run_attrs["count"], metrics).attrs['mean'],  # noqa
+    "knn-dist": {
+        "description": "Distance Recall",
+        "function": lambda true_distances, run_distances, metrics, run_attrs, *args: knnDist(true_distances, run_distances, run_attrs["count"], metrics).attrs['mean'],  # noqa
         "worst": float("-inf"),
         "lim": [0.0, 1.03]
+    },
+    "knn-set": {
+        "description": "Set Recall",
+        "function": lambda _, __, metrics, run_attrs, ___, ____, true_neighbors, run_neighbors: knnSet(true_neighbors, run_neighbors, run_attrs["count"], metrics).attrs['mean'],  # noqa
+        "worst": float("-inf"),
     },
 #    "epsilon": {
 #        "description": "Epsilon 0.01 Recall",

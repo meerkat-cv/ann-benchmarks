@@ -51,7 +51,9 @@ def compute_metrics( dataset, res, metric_1, metric_2,
                     recompute=False):
     all_results = {}
 
+    # Cache values
     true_nn_distances = numpy.array(dataset["distances"])
+    true_n_neighbors = numpy.array(dataset["neighbors"])
     train_labels= numpy.array(dataset["train_lbl"])
     query_labels= numpy.array([ n.decode() for n in dataset['test_lbl']])
 
@@ -63,13 +65,15 @@ def compute_metrics( dataset, res, metric_1, metric_2,
         run_neighbors = numpy.array(run['neighbors'])
 
         run_labels = compute_run_labels(run_neighbors,train_labels)
+
         if recompute and 'metrics' in run:
             del run['metrics']
         metrics_cache = get_or_create_metrics(run)
 
         metric_1_value = metrics[metric_1]['function'](
             true_nn_distances,
-            run_distances, metrics_cache, properties, query_labels, run_labels )
+            run_distances, metrics_cache, properties, query_labels, run_labels,
+            true_n_neighbors, run_neighbors )
         metric_2_value = metrics[metric_2]['function'](
             true_nn_distances,
             run_distances, metrics_cache, properties)
@@ -93,6 +97,7 @@ def compute_all_metrics(dataset, run, properties, recompute=False, use_cached=Fa
     # cache distances to avoid access to hdf5 file
     if not use_cached :
         true_nn_distances = numpy.array(dataset["distances"])
+        true_n_neighbors = numpy.array(dataset["neighbors"])
         train_labels= numpy.array(dataset["train_lbl"])
         query_labels= numpy.array([ n.decode() for n in dataset['test_lbl']])
 
@@ -102,6 +107,7 @@ def compute_all_metrics(dataset, run, properties, recompute=False, use_cached=Fa
         run_labels = compute_run_labels(run_neighbors,train_labels)
     else:
         true_nn_distances = None
+        true_n_neighbors = None
         train_labels = None
         query_labels = None
         run_distances = None
@@ -115,7 +121,9 @@ def compute_all_metrics(dataset, run, properties, recompute=False, use_cached=Fa
 
     for name, metric in metrics.items():
         v = metric["function"](
-            true_nn_distances, run_distances, metrics_cache, properties, query_labels, run_labels)
+            true_nn_distances,
+            run_distances, metrics_cache, properties, query_labels, run_labels,
+            true_n_neighbors, run_neighbors)
         results[name] = v
         if v:
             print('%s: %g' % (name, v))
