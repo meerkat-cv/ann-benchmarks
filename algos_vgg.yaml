@@ -19,7 +19,7 @@ float:
         base:
           args: [[10, 50, 100, 200, 1000, 2000]]
     faiss-lsh:
-      disabled: true
+      disabled: false
       docker-tag: ann-benchmarks-faiss
       module: ann_benchmarks.algorithms.faiss
       constructor: FaissLSH
@@ -33,7 +33,7 @@ float:
           # This run group will produce eight algorithm instances:
           # FaissLSH(32), FaissLSH(64), and so on up to FaissLSH(4096).
     faiss-ivf:
-      disabled: true
+      disabled: false
       docker-tag: ann-benchmarks-faiss
       module: ann_benchmarks.algorithms.faiss
       constructor: FaissIVF
@@ -98,7 +98,7 @@ float:
           query-args: [[10, 20, 40, 80, 120, 200, 400, 600, 800]]
 
     hnsw(faiss):
-     disabled: true
+     disabled: false
      docker-tag: ann-benchmarks-faiss
      module: ann_benchmarks.algorithms.faiss_hnsw
      constructor: FaissHNSW
@@ -177,7 +177,7 @@ float:
         extra:
           args: [16, [5, 10, 15, 20, 25, 30, 40]]
     n2:
-      disabled: true
+      disabled: true 
       docker-tag: ann-benchmarks-n2
       module: ann_benchmarks.algorithms.n2
       constructor: N2
@@ -221,7 +221,7 @@ float:
           query-args: [[10, 20, 40, 80, 120, 200, 400, 600, 800]] 
 
     bruteforce:
-      disabled: false
+      disabled: true
       docker-tag: ann-benchmarks-sklearn
       module: ann_benchmarks.algorithms.bruteforce
       constructor: BruteForce
@@ -257,7 +257,7 @@ float:
         empty:
           args: []
     ball:
-      disabled: false
+      disabled: true
       docker-tag: ann-benchmarks-sklearn
       module: ann_benchmarks.algorithms.balltree
       constructor: BallTree
@@ -267,7 +267,7 @@ float:
           args: &treeargs [[30]]
           #args: &treeargs [[10, 20, 40, 100, 200, 400, 1000]]
     kd:
-      disabled: false
+      disabled: true
       docker-tag: ann-benchmarks-sklearn
       module: ann_benchmarks.algorithms.kdtree
       constructor: KDTree
