@@ -88,9 +88,9 @@ def run_individual_query(algo, X_train, X_test, distance, count, run_count,
                 r = single_query(x)
                 results.append(r)
                 n_items_processed += 1
-                if n_items_processed[0] % 1000 == 0:
+                if n_items_processed % 1000 == 0:
                     print('Processed %d/%d queries... Last query time = %f' %
-                        (n_items_processed[0], len(X_test), r[0]))
+                        (n_items_processed, len(X_test), r[0]))
                     # Store partial results, usefull for long running tests that may timeout
                     store_results(res_fn, count, attrs, results, batch)
 
