@@ -119,6 +119,9 @@ def compute_all_metrics(dataset, run, properties, recompute=False, use_cached=Fa
         del run['metrics']
     metrics_cache = get_or_create_metrics(run)
 
+    if "best_search_time" not in properties:
+        times = [ t for t in run['times'] if t != numpy.inf]
+        properties['best_search_time'] = numpy.mean(times)
     for name, metric in metrics.items():
         v = metric["function"](
             true_nn_distances,
