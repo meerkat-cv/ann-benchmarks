@@ -526,7 +526,9 @@ dff %>%
         point.padding = 0.5
     )+
     labs(y = "Time (ms)") + #x = "Batch number", color="") + 
-    scale_y_continuous(trans='log10')
+    scale_y_continuous(trans='log10') +
+theme(legend.position="none")
+
 #+end_src
 
 #+RESULTS:
