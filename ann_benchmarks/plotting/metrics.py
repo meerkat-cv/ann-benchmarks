@@ -100,7 +100,7 @@ def epsilon(dataset_distances, run_distances, count, metrics, epsilon=0.01):
 def get_rank_values( query_labels, run_labels ):
     rank = []
     for q, neighbors in zip(query_labels, run_labels):
-        pos_arr = np.where(neighbors == q)#[0][0]#. #.index(q)
+        pos_arr = np.where(neighbors == q)
         if len(pos_arr[0]) == 0:
             r = float('inf')
         else:
@@ -109,10 +109,12 @@ def get_rank_values( query_labels, run_labels ):
         rank.append(r)
     return np.asarray(rank)
 
+
 def get_accuracy_rank(rank_values, rank_n = 1):
     filtered_rank = np.where(rank_values < rank_n)
     accuracy = len(filtered_rank[0])/len(rank_values)
     return accuracy
+
 
 def accuracy(query_labels, run_labels, metrics):
     """

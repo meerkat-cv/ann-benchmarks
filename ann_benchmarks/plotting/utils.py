@@ -114,7 +114,6 @@ def compute_all_metrics(dataset, run, properties, recompute=False, use_cached=Fa
         run_neighbors = None
         run_labels = None
 
-
     if recompute and 'metrics' in run:
         del run['metrics']
     metrics_cache = get_or_create_metrics(run)
@@ -125,6 +124,9 @@ def compute_all_metrics(dataset, run, properties, recompute=False, use_cached=Fa
         # Remove the incomplete runs
         run_neighbors = run_neighbors[0:len(times)]
         run_distances = run_distances[0:len(times)]
+        run_labels = run_labels[0:len(times)]
+        query_labels = query_labels[0:len(times)]
+
     for name, metric in metrics.items():
         v = metric["function"](
             true_nn_distances,
