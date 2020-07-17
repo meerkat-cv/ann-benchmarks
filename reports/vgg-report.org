@@ -177,7 +177,7 @@ python3 export_to_csv.py --dataset vgg-512-euclidean
 
 Raw results are available here : [[../results/vgg-512-euclidean.csv]]
 
-#+begin_src R :results output :exports none :session 
+#+begin_src R :results output :exports both :session 
 options(crayon.enabled = FALSE)
 options(dplyr.width=Inf)
 
