@@ -4,6 +4,7 @@
 #+EMAIL: julio@meerkat.com.br
 #+STARTUP: indent 
 #+STARTUP: logdrawer hideblocks
+#+OPTIONS: tex:t
 #+OPTIONS: html-postamble:nil f:nil broken-links:mark H:5 toc:nil todo:nil ^:{}
 #+PROPERTY: header-args :cache no :eval never-export
 #+SEQ_TODO: TODO INPROGRESS(i) WAITING(@) | DONE NOTE DEFERRED(@) CANCELED(@)
@@ -161,7 +162,6 @@ Recall based on
 
 
             
-
 * Algorithms                                                       :noexport:
 ** Selected algorithm 
 Faiss
@@ -183,11 +183,11 @@ options(dplyr.width=Inf)
 
 library(tidyverse)
 df = read_delim("../results/vgg-512-euclidean.csv", delim=',', trim_ws = TRUE )
-#df %>% 
-#    replace( ., . == 'ball', 'BallTree(sklearn)') %>%
-#    replace( ., . == 'kd', 'KD(sklearn)') %>% 
-#    replace( ., . == 'bruteforce', 'bruteforce-sk') -> df
-# df %>% mutate(algorithm = replace( algorithm, algorithm == 'ball', 'BallTree(sklearn)')) %>% head()
+                                        #df %>% 
+                                        #    replace( ., . == 'ball', 'BallTree(sklearn)') %>%
+                                        #    replace( ., . == 'kd', 'KD(sklearn)') %>% 
+                                        #    replace( ., . == 'bruteforce', 'bruteforce-sk') -> df
+                                        # df %>% mutate(algorithm = replace( algorithm, algorithm == 'ball', 'BallTree(sklearn)')) %>% head()
 df %>% mutate(algorithm = str_replace_all( algorithm, 
                                           c('^kd$' = 'KD(sklearn)', 
                                             '^ball$' = 'BallTree(sklearn)',
@@ -199,6 +199,14 @@ head(df)
 
 #+RESULTS:
 #+begin_example
+── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──
+✔ ggplot2 3.3.1     ✔ purrr   0.3.4
+✔ tibble  3.0.1     ✔ dplyr   1.0.0
+✔ tidyr   1.1.0     ✔ stringr 1.4.0
+✔ readr   1.3.1     ✔ forcats 0.5.0
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
 Parsed with column specification:
 cols(
   dataset = col_character(),
@@ -242,7 +250,7 @@ cols(
 6          0.983    716.    0.00140   8934.    13264308
 #+end_example
 
-#+begin_src R :results output :exports results :session 
+#+begin_src R :results output :exports both :session 
 days <- ( 2*sum(df$queryTime) * 10000 + sum(df$build))  / (3600*24)
 sprintf("Total benchmark duration: %.2f days",  days)
 #+end_src
@@ -256,7 +264,7 @@ sprintf("Total benchmark duration: %.2f days",  days)
 In addition to the scatter plot ( transparent points ) we also draw lines connecting points on the Pareto frontier. 
 I.e. the set of optimal of runs that Minimize =Query Time= and =Maximize Accuracy=.
 
-#+begin_src R :results output graphics :file ./img/vgg-512-euclidean-query-R1.svg :exports results :width 8 :height 5 :session 
+#+begin_src R :results output graphics :file ./img/vgg-512-euclidean-query-R1.svg :exports both :width 8 :height 5 :session 
 library(rPref)
 library(ggrepel)
 
@@ -293,7 +301,7 @@ TO-DO:
 *** Query Time vs accuracy-Rank@10
 
 
-#+begin_src R :results output graphics :file ./img/vgg-512-euclidean-query-R10.svg :exports results :width 8 :height 5 :session 
+#+begin_src R :results output graphics :file ./img/vgg-512-euclidean-query-R10.svg :exports both :width 8 :height 5 :session 
 library(rPref)
 library(ggrepel)
 
@@ -336,7 +344,7 @@ cd ~/Projects/ann-benchmarks
 python3 plot.py --dataset vgg-512-euclidean -y build -x accuracy-R@1 -o reports/img/vgg-512-euclidean-build-R1.svg -Y
 #+end_src
 
-#+begin_src R :results output graphics :file ./img/vgg-512-euclidean-build-R1.svg :exports results :width 8 :height 5 :session 
+#+begin_src R :results output graphics :file ./img/vgg-512-euclidean-build-R1.svg :exports both :width 8 :height 5 :session 
 library(rPref)
 
 df %>% 
@@ -344,7 +352,7 @@ df %>%
     group_by(algorithm) -> dff
 
 dff %>%
- #   psel(high(`accuracy-R@1`) * low(queryTime)) %>%
+                                        #   psel(high(`accuracy-R@1`) * low(queryTime)) %>%
     psel(high(`accuracy-R@1`) * low(build)) -> df_sky
 
 df_sky %>%  
@@ -360,7 +368,7 @@ df_sky %>%
     xlim(NA,0.996) +
     labs(y = "Build Time (minutes)") + #x = "Batch number", color="") + 
     scale_y_continuous(trans='log10') + 
-theme(legend.position="none")
+    theme(legend.position="none")
 #+end_src
 
 #+RESULTS:
@@ -426,14 +434,14 @@ python3 plot.py --dataset vgg-512-euclidean -y indexsize -x accuracy-R@1 -o repo
 
 Like in the previous plot we only show the pareto-optimal set of points with high =R@1= and low =Index Size=
 
-#+begin_src R :results output graphics :file ./img/vgg-512-euclidean-IndexSize-R1.svg :exports results :width 8 :height 5 :session 
+#+begin_src R :results output graphics :file ./img/vgg-512-euclidean-IndexSize-R1.svg :exports both :width 8 :height 5 :session 
 library(rPref)
 
 df %>% 
     filter(`accuracy-R@1` > 0.9) %>%
     group_by(algorithm) -> dff
 
-# maximize result with according to QueryTime
+                                        # maximize result with according to QueryTime
 dff %>%
     psel(high(`accuracy-R@1`) * low(indexsize) ) -> df_sky
 
@@ -450,7 +458,7 @@ df_sky %>%
     xlim(NA,0.996) +
     labs(y = "IndexSize (GBytes)") + #x = "Batch number", color="") + 
     scale_y_continuous(trans='log10') +
-theme(legend.position="none")
+    theme(legend.position="none")
 
 #+end_src
 
@@ -458,7 +466,7 @@ theme(legend.position="none")
 [[file:./img/vgg-512-euclidean-IndexSize-R1.svg]]
 
 
-#+begin_src R :results table :colnames yes :exports results :session 
+#+begin_src R :results table :colnames yes :exports both :session 
 print(df_sky) %>% 
     mutate( query_ms = round(queryTime*1000,2), 
            build_min = round(build/60,2), 
@@ -511,7 +519,7 @@ print(df_sky) %>%
 
 *** Query Time vs Recall
 
-#+begin_src R :results output graphics :file ./img/vgg-512-euclidean-query-knn-set.svg :exports results :width 8 :height 5 :session 
+#+begin_src R :results output graphics :file ./img/vgg-512-euclidean-query-knn-set.svg :exports both :width 8 :height 5 :session 
 library(rPref)
 
 df %>% 
@@ -536,7 +544,7 @@ dff %>%
     )+
     labs(y = "Time (ms)") + #x = "Batch number", color="") + 
     scale_y_continuous(trans='log10') +
-theme(legend.position="none")
+    theme(legend.position="none")
 
 #+end_src
 
@@ -546,7 +554,7 @@ theme(legend.position="none")
 
 *** Index Build Time vs Recall
 
-#+begin_src R :results output graphics :file ./img/vgg-512-euclidean-build-knn-set.svg :exports results :width 8 :height 5 :session 
+#+begin_src R :results output graphics :file ./img/vgg-512-euclidean-build-knn-set.svg :exports both :width 8 :height 5 :session 
 
 library(rPref)
 library(ggrepel)
@@ -556,7 +564,7 @@ df %>%
     group_by(algorithm) -> dff
 
 dff %>%
-    #psel(high(`knn-set`) * low(queryTime)) %>%
+                                        #psel(high(`knn-set`) * low(queryTime)) %>%
     psel(high(`knn-set`) * low(build)) -> df_sky
 
 df_sky %>%  
@@ -571,7 +579,7 @@ df_sky %>%
     )+
     labs(y = "Build Time (minutes)") + #x = "Batch number", color="") + 
     scale_y_continuous(trans='log10')+
-theme(legend.position="none")
+    theme(legend.position="none")
 #+end_src
 
 #+RESULTS:
@@ -627,7 +635,7 @@ print(df_sky) %>%
 *** Index Size vs Recall
 
 
-#+begin_src R :results output graphics :file ./img/vgg-512-euclidean-IndexSize-knn-set.svg :exports results :width 8 :height 5 :session 
+#+begin_src R :results output graphics :file ./img/vgg-512-euclidean-IndexSize-knn-set.svg :exports both :width 8 :height 5 :session 
 
 library(rPref)
 library(ggrepel)
@@ -654,14 +662,14 @@ df_sky %>%
     )+
     labs(y = "IndexSize (GBytes)") + #x = "Batch number", color="") + 
     scale_y_continuous(trans='log10')+
-theme(legend.position="none")
+    theme(legend.position="none")
 #+end_src
 
 #+RESULTS:
 [[file:./img/vgg-512-euclidean-IndexSize-knn-set.svg]]
 
 
-#+begin_src R :results table :colnames yes :exports results :session 
+#+begin_src R :results table :colnames yes :exports both :session 
 print(df_sky) %>% 
     mutate( `knn-set` = round(`knn-set`, 4),  query_ms = round(queryTime*1000,2), build_min = round(build/60,2), index_GB = round(indexsize/2**20,2)) %>% 
     select(parameters, `knn-set`, query_ms, build_min, index_GB ) %>% arrange(index_GB) 
